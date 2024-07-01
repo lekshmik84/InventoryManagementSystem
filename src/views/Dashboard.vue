@@ -1,7 +1,6 @@
 <script setup>
 import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import GradientLineChart from "@/examples/Charts/GradientLineChart.vue";
-import Carousel from "./components/Carousel.vue";
 import CategoriesList from "./components/CategoriesList.vue";
 
 import US from "@/assets/img/icons/flags/US.png";
@@ -9,110 +8,137 @@ import DE from "@/assets/img/icons/flags/DE.png";
 import GB from "@/assets/img/icons/flags/GB.png";
 import BR from "@/assets/img/icons/flags/BR.png";
 
+const inventoryMetrics = {
+  totalItems: {
+    title: "Total Items",
+    value: "3,500",
+    description: "<span class='text-sm font-weight-bolder text-success'>+15%</span> since last month",
+    icon: {
+      component: 'ni ni-archive-2',
+      background: 'bg-gradient-primary',
+      shape: 'rounded-circle',
+    }
+  },
+  lowStockAlerts: {
+    title: "Low Stock Alerts",
+    value: "150",
+    description: "<span class='text-sm font-weight-bolder text-danger'>-10%</span> from last week",
+    icon: {
+      component: 'ni ni-bell-55',
+      background: 'bg-gradient-danger',
+      shape: 'rounded-circle',
+    }
+  },
+  pendingOrders: {
+    title: "Pending Orders",
+    value: "25",
+    description: "<span class='text-sm font-weight-bolder text-success'>+20%</span> since yesterday",
+    icon: {
+      component: 'ni ni-cart',
+      background: 'bg-gradient-warning',
+      shape: 'rounded-circle',
+    }
+  },
+  revenue: {
+    title: "Revenue",
+    value: "$85,600",
+    description: "<span class='text-sm font-weight-bolder text-success'>+8%</span> than last quarter",
+    icon: {
+      component: 'ni ni-money-coins',
+      background: 'bg-gradient-info',
+      shape: 'rounded-circle',
+    }
+  }
+};
+
+const categories = [
+  {
+    icon: {
+      component: 'ni ni-mobile-button',
+      background: 'dark',
+    },
+    label: 'Electronics',
+    description: '250 in stock <strong>346+ sold</strong>',
+  },
+  {
+    icon: {
+      component: 'ni ni-tag',
+      background: 'dark',
+    },
+    label: 'Clothing',
+    description: '123 closed <strong>15 open</strong>',
+  },
+  {
+    icon: { component: 'ni ni-box-2', background: 'dark' },
+    label: 'Accessories',
+    description: '1 is active <strong>40 closed</strong>',
+  },
+  {
+    icon: { component: 'ni ni-satisfied', background: 'dark' },
+    label: 'Footwear',
+    description: '+ 430',
+  },
+];
+
 const sales = {
   us: {
     country: "United States",
-    sales: 2500,
+    quantity: 2500,
     value: "$230,900",
-    bounce: "29.9%",
+    location: "East Coast",
     flag: US,
   },
   germany: {
     country: "Germany",
-    sales: "3.900",
+    quantity: 3900,
     value: "$440,000",
-    bounce: "40.22%",
+    location: "Berlin",
     flag: DE,
   },
   britain: {
     country: "Great Britain",
-    sales: "1.400",
+    quantity: 1400,
     value: "$190,700",
-    bounce: "23.44%",
+    location: "London",
     flag: GB,
   },
   brasil: {
     country: "Brasil",
-    sales: "562",
+    quantity: 562,
     value: "$143,960",
-    bounce: "32.14%",
+    location: "Sao Paulo",
     flag: BR,
   },
 };
 </script>
+
 <template>
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-lg-12">
         <div class="row">
-          <div class="col-lg-3 col-md-6 col-12">
+          <div v-for="(metric, index) in inventoryMetrics" :key="index" class="col-lg-3 col-md-6 col-12">
             <mini-statistics-card
-              title="Today's Money"
-              value="$53,000"
-              description="<span
-                class='text-sm font-weight-bolder text-success'
-                >+55%</span> since yesterday"
-              :icon="{
-                component: 'ni ni-money-coins',
-                background: 'bg-gradient-primary',
-                shape: 'rounded-circle',
-              }"
-            />
-          </div>
-          <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card
-              title="Today's Users"
-              value="2,300"
-              description="<span
-                class='text-sm font-weight-bolder text-success'
-                >+3%</span> since last week"
-              :icon="{
-                component: 'ni ni-world',
-                background: 'bg-gradient-danger',
-                shape: 'rounded-circle',
-              }"
-            />
-          </div>
-          <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card
-              title="New Clients"
-              value="+3,462"
-              description="<span
-                class='text-sm font-weight-bolder text-danger'
-                >-2%</span> since last quarter"
-              :icon="{
-                component: 'ni ni-paper-diploma',
-                background: 'bg-gradient-success',
-                shape: 'rounded-circle',
-              }"
-            />
-          </div>
-          <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card
-              title="Sales"
-              value="$103,430"
-              description="<span
-                class='text-sm font-weight-bolder text-success'
-                >+5%</span> than last month"
-              :icon="{
-                component: 'ni ni-cart',
-                background: 'bg-gradient-warning',
-                shape: 'rounded-circle',
-              }"
+              :title="metric.title"
+              :value="metric.value"
+              :description="metric.description"
+              :icon="metric.icon"
             />
           </div>
         </div>
-        <div class="row">
+        <div class="row lineChart">
           <div class="col-lg-7 mb-lg">
             <!-- line chart -->
             <div class="card z-index-2">
               <gradient-line-chart
                 id="chart-line"
-                title="Sales Overview"
-                description="<i class='fa fa-arrow-up text-success'></i>
-      <span class='font-weight-bold'>4% more</span> in 2021"
+                title="Inventory Trends"
+                description="<i class='fa fa-arrow-up text-success'></i> <span class='font-weight-bold'>5% growth</span> in stock"
                 :chart="{
                   labels: [
+                    'Jan',
+                    'Feb',
+                    'Mar',
                     'Apr',
                     'May',
                     'Jun',
@@ -125,16 +151,13 @@ const sales = {
                   ],
                   datasets: [
                     {
-                      label: 'Mobile Apps',
-                      data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+                      label: 'Total Items',
+                      data: [2000, 2200, 2500, 2800, 3200, 3500, 3700, 3800, 4000, 4200, 4300, 4500],
                     },
                   ],
                 }"
               />
             </div>
-          </div>
-          <div class="col-lg-5">
-            <carousel />
           </div>
         </div>
         <div class="row mt-4">
@@ -142,7 +165,7 @@ const sales = {
             <div class="card">
               <div class="p-3 pb-0 card-header">
                 <div class="d-flex justify-content-between">
-                  <h6 class="mb-2">Sales by Country</h6>
+                  <h6 class="mb-2">Inventory by Location</h6>
                 </div>
               </div>
               <div class="table-responsive">
@@ -164,8 +187,8 @@ const sales = {
                       </td>
                       <td>
                         <div class="text-center">
-                          <p class="mb-0 text-xs font-weight-bold">Sales:</p>
-                          <h6 class="mb-0 text-sm">{{ sale.sales }}</h6>
+                          <p class="mb-0 text-xs font-weight-bold">Quantity:</p>
+                          <h6 class="mb-0 text-sm">{{ sale.quantity }}</h6>
                         </div>
                       </td>
                       <td>
@@ -176,8 +199,8 @@ const sales = {
                       </td>
                       <td class="text-sm align-middle">
                         <div class="text-center col">
-                          <p class="mb-0 text-xs font-weight-bold">Bounce:</p>
-                          <h6 class="mb-0 text-sm">{{ sale.bounce }}</h6>
+                          <p class="mb-0 text-xs font-weight-bold">Location:</p>
+                          <h6 class="mb-0 text-sm">{{ sale.location }}</h6>
                         </div>
                       </td>
                     </tr>
@@ -187,39 +210,18 @@ const sales = {
             </div>
           </div>
           <div class="col-lg-5">
-            <categories-list
-              :categories="[
-                {
-                  icon: {
-                    component: 'ni ni-mobile-button',
-                    background: 'dark',
-                  },
-                  label: 'Devices',
-                  description: '250 in stock <strong>346+ sold</strong>',
-                },
-                {
-                  icon: {
-                    component: 'ni ni-tag',
-                    background: 'dark',
-                  },
-                  label: 'Tickets',
-                  description: '123 closed <strong>15 open</strong>',
-                },
-                {
-                  icon: { component: 'ni ni-box-2', background: 'dark' },
-                  label: 'Error logs',
-                  description: '1 is active <strong>40 closed</strong>',
-                },
-                {
-                  icon: { component: 'ni ni-satisfied', background: 'dark' },
-                  label: 'Happy Users',
-                  description: '+ 430',
-                },
-              ]"
-            />
+            <categories-list :categories="categories" />
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+<style scoped>
+  .lineChart {
+    justify-content: center;
+  }
+  .bgColor{
+    background-color: (310deg, #bf1eb3 0%, #2dcecc 100%);
+  }
+</style>

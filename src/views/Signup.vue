@@ -1,13 +1,23 @@
 <script setup>
 import { onBeforeUnmount, onBeforeMount } from "vue";
 import { useStore } from "vuex";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/firebase';
 
-import Navbar from "@/examples/PageLayout/Navbar.vue";
 import AppFooter from "@/examples/PageLayout/Footer.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 const body = document.getElementsByTagName("body")[0];
+
+const email = ref('');
+const password = ref('');
+const name = ref('');
+const agreeTerms = ref(false);
+const loading = ref(false);
+const router = useRouter();
 
 const store = useStore();
 onBeforeMount(() => {
@@ -24,32 +34,52 @@ onBeforeUnmount(() => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 });
+
+const isValidEmail = (email) => {
+  const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+  return emailPattern.test(email);
+};
+
+const signUpHandle = async (event) => {
+  event.preventDefault();
+  if (!isValidEmail(email.value)) {
+    console.error('Invalid email format');
+    return;
+  }
+
+  if (!password.value) {
+    console.error('Password cannot be empty');
+    return;
+  }
+
+
+  loading.value = true;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    console.log('User registered:', userCredential.user);
+
+    router.push('/Product');
+  } catch (error) {
+    console.error('Error registering user:', error.message);
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
+
 <template>
   <div class="container top-0 position-sticky z-index-sticky">
     <div class="row">
       <div class="col-12">
-        <navbar isBtn="bg-gradient-light" />
       </div>
     </div>
   </div>
   <main class="main-content mt-0">
-    <div
-      class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg"
-      style="
-        background-image: url(&quot;https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signup-cover.jpg&quot;);
-        background-position: top;
-      "
-    >
-      <span class="mask bg-gradient-dark opacity-6"></span>
+    <div class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg bgImage">
+      <span class="mask bg-gradient-dark opacity-6 "></span>
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-lg-5 text-center mx-auto">
-            <h1 class="text-white mb-2 mt-5">Welcome!</h1>
-            <p class="text-lead text-white">
-              Use these awesome forms to login or create new account in your
-              project for free.
-            </p>
           </div>
         </div>
       </div>
@@ -176,21 +206,24 @@ onBeforeUnmount(() => {
                   type="text"
                   placeholder="Name"
                   aria-label="Name"
+                  v-model="name"
                 />
                 <argon-input
                   id="email"
                   type="email"
                   placeholder="Email"
                   aria-label="Email"
+                  v-model="email"
                 />
                 <argon-input
                   id="password"
                   type="password"
                   placeholder="Password"
                   aria-label="Password"
+                  v-model="password"
                 />
-                <argon-checkbox checked>
-                  <label class="form-check-label" for="flexCheckDefault">
+                <argon-checkbox v-model="agreeTerms">
+                  <label class="form-check-label" for="agreeTerms">
                     I agree the
                     <a href="javascript:;" class="text-dark font-weight-bolder"
                       >Terms and Conditions</a
@@ -203,14 +236,15 @@ onBeforeUnmount(() => {
                     color="dark"
                     variant="gradient"
                     class="my-4 mb-2"
-                    >Sign up</argon-button
+                    @click="signUpHandle"
+                    >{{ loading ? 'Signing up...' : 'Sign up' }}</argon-button
                   >
                 </div>
                 <p class="text-sm mt-3 mb-0">
                   Already have an account?
-                  <a href="javascript:;" class="text-dark font-weight-bolder"
-                    >Sign in</a
-                  >
+                  <router-link to="/signin" class="text-dark font-weight-bolder">
+                    Sign in
+                  </router-link>
                 </p>
               </form>
             </div>
@@ -221,3 +255,12 @@ onBeforeUnmount(() => {
   </main>
   <app-footer />
 </template>
+
+<style scoped>
+.bgImage{
+  background-image: url('../assets/img/istockphoto-1344089225-2048x2048.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+</style>
